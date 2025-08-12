@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacts</title>
+</head>
+<body>
+    <div>
+        <input type="hidden" id="id">
+        <label for="name">Name</label>
+        <input id="name" type="text">
+        <br>
+        <label for="email">Email</label>
+        <input id="email" type="email">
+        <br>
+        <label for="phone">Phone</label>
+        <input id="phone" type="tel">
+        <br>
+        <button onclick="CreateOrEdit()">Send</button>
+    </div>
+    <hr>
+    <label for="search">Search by Name:</label>
+    <input id="search" type="text" oninput="filterTable()">
+    <hr>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>DELETE</th>
+                <th>ID</th>
+                <th>NAME</th>
+                <th>EMAIL</th>
+                <th>PHONE</th>
+                <th>EDIT</th>
+            </tr>
+        </thead>
+        <tbody id="myTable"></tbody>
+    </table>
+
+    <script>
+        //data//
+        let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+        if (contacts.length === 0) {
+            localStorage.setItem('nextID', JSON.stringify(1));
+        }
+
+        //Read//
+        function createTable(data) {
+            let txt = "";
+            for (let obj of data) {
+                txt += "<tr>";
+                txt += `<td><button onclick="deleteContact(${obj.id})">Delete</button></td>`;
+                for (let k in obj) {
+                    txt += `<td>${obj[k]}</td>`;
+                }
+                txt += `<td><button onclick="contactToEdit(${obj.id})">Edit</button></td>`;
+                txt += "</tr>";
+            }
+            document.getElementById('myTable').innerHTML = txt;
+        }
+
+       //creat//
+        function addContact() {
+            let id = JSON.parse(localStorage.getItem('nextID'));
+            let name = document.getElementById('name').value;
+            let email = document.getElementById('email').value;
+            let phone = document.getElementById('phone').value;
+            let obj = { id, name, email, phone };
+            contacts.push(obj);
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            createTable(contacts);
+            document.getElementById('name').value = "";
+            document.getElementById('email').value = "";
+            document.getElementById('phone').value = "";
+            localStorage.setItem('nextID', JSON.stringify(id + 1));
+        }
+
+        //delete//
+        function deleteContact(id) {
+            contacts = contacts.filter(o => o.id !== id);
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            createTable(contacts);
+        }
+
+        //  Update
+        function contactToEdit(id) {
+            let obj = contacts.find(o => o.id === id);
+            document.getElementById('id').value = obj.id;
+            document.getElementById('name').value = obj.name;
+            document.getElementById('email').value = obj.email;
+            document.getElementById('phone').value = obj.phone;
+        }
+
+        
+        function editContact() {
+            let id = parseInt(document.getElementById('id').value);
+            let name = document.getElementById('name').value;
+            let email = document.getElementById('email').value;
+            let phone = document.getElementById('phone').value;
+            let obj = contacts.find(o => o.id === id);
+            obj.name = name;
+            obj.email = email;
+            obj.phone = phone;
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            createTable(contacts);
+            document.getElementById('id').value = "";
+            document.getElementById('name').value = "";
+            document.getElementById('email').value = "";
+            document.getElementById('phone').value = "";
+        }
+
+        // selector
+        function CreateOrEdit() {
+            let id = document.getElementById('id').value;
+            if (id) {
+                editContact();
+            } else {
+                addContact();
+            }
+
+            
+        }
+         function clearForm() {
+            document.getElementById('id').value = "";
+            document.getElementById('name').value = "";
+            document.getElementById('email').value = "";
+            document.getElementById('phone').value = "";
+        }
+
+        
+        function filterTable() {
+            let searchValue = document.getElementById('search').value.toLowerCase();
+            if (searchValue === "") {
+                createTable(contacts);
+            } else {
+                let filtered = contacts.filter(c => c.name.toLowerCase().includes(searchValue));
+                createTable(filtered);
+            }
+        }
+
+        createTable(contacts);
+    </script>
+</body>
+</html>
