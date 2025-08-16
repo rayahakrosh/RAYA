@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>רישום נוכחות</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>name</th>
+                <th>ip</th>
+            </tr>
+        </thead>
+        <tbody id="myTable"></tbody>
+    </table>
+    <script>
+        async function getData(){
+           let response =  await fetch('/s'); 
+           let data =await response.json();
+
+           let tableBody = document.getElementById("myTable");
+        tableBody.innerHTML = "";
+
+        data.forEach(item => {
+            let row = `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.ip}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+        }
+        
+        getData()  
+    </script>
+</body>
+</html>
